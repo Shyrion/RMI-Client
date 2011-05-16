@@ -1,7 +1,10 @@
 package client;
 
-public interface IClient {
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
-	void notify(String string);
+public interface IClient extends Remote{
+
+	public void notify(String string) throws RemoteException;
 
 }

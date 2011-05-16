@@ -58,7 +58,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 		}
 	}
 	
-	public void notify(String message){
+	public void notify(String message) throws RemoteException{
 		System.out.println(message);
 	}
 	
