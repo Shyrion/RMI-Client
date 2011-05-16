@@ -14,7 +14,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 	private static final long serialVersionUID = 1L;
 	private String name;
 	private Distante chatroom;
-	private ClientFrame frame;
+	private IClientFrame frame;
 
 	protected Client() throws RemoteException {
 		super();
@@ -34,11 +34,11 @@ public class Client extends UnicastRemoteObject implements IClient {
 		this.chatroom = chatroom;
 	}
 
-	public ClientFrame getFrame() {
+	public IClientFrame getFrame() {
 		return frame;
 	}
 
-	public void setFrame(ClientFrame frame) {
+	public void setFrame(IClientFrame frame) {
 		this.frame = frame;
 	}
 
@@ -51,13 +51,11 @@ public class Client extends UnicastRemoteObject implements IClient {
 			Console console = System.console();
 
 			if (console == null) {
-				System.err
-				          .println("Error : No console ! Please run it with command line :).");
+				System.err.println("Error : No console ! Please run it with command line :).");
 			}
 
 			String login = console.readLine("Please enter your login : ");
-			String password = console
-			          .readLine("Please enter your password : ");
+			String password = console.readLine("Please enter your password : ");
 
 			client.setFrame(new ClientFrame(client));
 			final IClient c2 = client;
@@ -92,21 +90,25 @@ public class Client extends UnicastRemoteObject implements IClient {
 		this.name = name;
 	}
 
-	public void notify(String message) throws RemoteException {
-		System.out.println(message);
+	public void print(String message) throws RemoteException {
 		frame.addMessage(message);
 	}
 
 	public void notifyConnect(String message) throws RemoteException {
-		notify(message + " has joined the channel.");
-		frame.addMessage(message);
-		// set la liste des gens connectés
+		print(message + " has joined the channel.");
+		frame.addUser(message);
 	}
 
 	public void notifyDisconnect(String message) throws RemoteException {
-		notify(message + " has left the channel.");
-		frame.addMessage(message);
-		// set la liste des gens connectés
+		print(message + " has left the channel.");
+		frame.removeUser(message);
 	}
 
+	public void notifyMessage(String sender, String message) throws RemoteException {
+		print(sender + " : " + message);
+	}
+
+	public void notifyLogout() throws RemoteException {
+		print("Good bye !");
+	}
 }

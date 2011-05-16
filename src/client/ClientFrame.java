@@ -48,17 +48,19 @@ public class ClientFrame extends JFrame implements IClientFrame {
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				try {
-	                    client.getChatroom().logout(client);
-                    } catch (RemoteException e1) {
-	                    e1.printStackTrace();
-                    }
+					client.getChatroom().logout(client);
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
-		
+
 		mainPanel = new JPanel(new BorderLayout());
 
 		usersModel = new DefaultListModel();
 		usersJList = new JList(usersModel);
+		usersJList.setPreferredSize(new Dimension(140, 400));
+		usersJList.setMinimumSize(new Dimension(140, 400));
 		usersPane = new JScrollPane(usersJList);
 
 		messagePanel = new JPanel();
@@ -68,13 +70,11 @@ public class ClientFrame extends JFrame implements IClientFrame {
 		Font font = new Font("Verdana", Font.BOLD, 12);
 		messageArea.setFont(font);
 		messageArea.setForeground(Color.BLACK);
-		messageScrollPane = new JScrollPane(messageArea,
-		          JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+		messageScrollPane = new JScrollPane(messageArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 		          JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		messagePanel.add(messageScrollPane);
 
-		horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-		          messagePanel, usersPane);
+		horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, messagePanel, usersPane);
 		horizontalSplitPane.setDividerLocation(600);
 		horizontalSplitPane.setEnabled(false);
 		inputPanel = new JPanel();
@@ -88,8 +88,7 @@ public class ClientFrame extends JFrame implements IClientFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					client.getChatroom().broadCastMessage(client,
-					          inputArea.getText());
+					client.getChatroom().broadCastMessage(client, inputArea.getText());
 					inputArea.setText("");
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
@@ -97,8 +96,8 @@ public class ClientFrame extends JFrame implements IClientFrame {
 			}
 		});
 
-		verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-		          horizontalSplitPane, inputPanel);
+		verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplitPane,
+		          inputPanel);
 		verticalSplitPane.setDividerLocation(450);
 		verticalSplitPane.setEnabled(false);
 
@@ -120,7 +119,15 @@ public class ClientFrame extends JFrame implements IClientFrame {
 		messageArea.selectAll();
 		messageArea.setSelectedTextColor(Color.black);
 		x = messageArea.getSelectionEnd();
-		messageArea.select(x,x);
+		messageArea.select(x, x);
 		messageArea.repaint();
+	}
+
+	public void addUser(String user) {
+		usersModel.addElement(user);
+	}
+
+	public void removeUser(String user) {
+		usersModel.removeElement(user);
 	}
 }
