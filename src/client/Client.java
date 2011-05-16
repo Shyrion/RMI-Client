@@ -44,7 +44,13 @@ public class Client extends UnicastRemoteObject implements IClient {
 			String password = console.readLine("Please enter your password : ");
 			
 			// ArgumentMismatchException... WTF ?
-			if(obj.login(login, password, client));
+			if(obj.login(login, password, client)){
+				// switch sur la commande
+				//boucle qui le tient en vie, tu peux envoyer un message
+			}
+			
+
+			return;
 			
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -56,6 +62,14 @@ public class Client extends UnicastRemoteObject implements IClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public void notify(String message) throws RemoteException{
