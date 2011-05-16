@@ -43,13 +43,11 @@ public class Client extends UnicastRemoteObject implements IClient {
 			String login = console.readLine("Please enter your login : ");
 			String password = console.readLine("Please enter your password : ");
 			
-			// ArgumentMismatchException... WTF ?
+			ClientFrame frame = new ClientFrame(client);
 			if(obj.login(login, password, client)){
 				// switch sur la commande
 				//boucle qui le tient en vie, tu peux envoyer un message
 			}
-			
-
 			return;
 			
 		} catch (MalformedURLException e) {
