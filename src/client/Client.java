@@ -48,7 +48,6 @@ public class Client extends UnicastRemoteObject implements IClient {
 				// switch sur la commande
 				//boucle qui le tient en vie, tu peux envoyer un message
 			}
-			
 
 			return;
 			
@@ -74,6 +73,16 @@ public class Client extends UnicastRemoteObject implements IClient {
 	
 	public void notify(String message) throws RemoteException{
 		System.out.println(message);
+	}
+	
+	public void notifyConnect(String message) throws RemoteException{
+		notify(message + " has joined the channel.");
+		// set la liste des gens connectés
+	}
+	
+	public void notifyDisconnect(String message) throws RemoteException{
+		notify(message + " has left the channel.");
+		// set la liste des gens connectés
 	}
 	
 }
