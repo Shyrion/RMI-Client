@@ -3,6 +3,9 @@ package client;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -45,6 +48,7 @@ public class ClientFrame extends JFrame {
      	
      	horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, messagePane, usersPane);
      	horizontalSplitPane.setDividerLocation(600);
+     	horizontalSplitPane.setEnabled(false);
      	inputPanel = new JPanel();
      	inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
      	inputArea = new JTextArea(6, 60);
@@ -52,8 +56,20 @@ public class ClientFrame extends JFrame {
      	sendButton = new JButton("Send");
      	inputPanel.add(sendButton);
      	
+     	sendButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+	                    client.getChatroom().broadCastMessage(client, inputArea.getText());
+                    } catch (RemoteException e1) {
+	                    e1.printStackTrace();
+                    }
+			}
+		});
+     	
      	verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplitPane, inputPanel);
      	verticalSplitPane.setDividerLocation(450);
+     	verticalSplitPane.setEnabled(false);
      	
      	mainPanel.add(verticalSplitPane);
      	

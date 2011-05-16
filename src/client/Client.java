@@ -11,8 +11,9 @@ import server.Distante;
 
 
 public class Client extends UnicastRemoteObject implements IClient {
-
-	String name;
+	private static final long serialVersionUID = 1L;
+	private String name;
+	private Distante chatroom;
 	
 	protected Client() throws RemoteException {
 		super();
@@ -24,16 +25,20 @@ public class Client extends UnicastRemoteObject implements IClient {
 		this.name = name;
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	public Distante getChatroom() throws RemoteException {
+     	return chatroom;
+     }
+
+	public void setChatroom(Distante chatroom)  throws RemoteException {
+     	this.chatroom = chatroom;
+     }
 
 	public static void main(String[] args) {
 		try {
 			//System.setSecurityManager(new java.rmi.RMISecurityManager());
-			Distante obj = (Distante) Naming.lookup("cr1");
+			Distante cr1 = (Distante) Naming.lookup("cr1");
 			IClient client = new Client();
+			client.setChatroom(cr1);
 			Console console = System.console();
 			
 			if(console == null){
@@ -44,20 +49,17 @@ public class Client extends UnicastRemoteObject implements IClient {
 			String password = console.readLine("Please enter your password : ");
 			
 			ClientFrame frame = new ClientFrame(client);
-			if(obj.login(login, password, client)){
+			if(client.getChatroom().login(login, password, client)){
 				// switch sur la commande
 				//boucle qui le tient en vie, tu peux envoyer un message
 			}
 			return;
 			
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
