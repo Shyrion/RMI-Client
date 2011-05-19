@@ -2,6 +2,8 @@ package client;
 
 public interface IClientFrame {
 	public void buildFrame();
+	
+	public void sendMessage();
 
 	public void addMessage(String message);
 

@@ -1,7 +1,6 @@
 package client;
 
 import java.io.Console;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -69,7 +68,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 				}
 			});
 			if (client.getChatroom().login(login, password, client)) {
-				
+
 			}
 			return;
 

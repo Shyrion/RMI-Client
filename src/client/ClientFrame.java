@@ -11,7 +11,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.DefaultListModel;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -19,8 +22,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 
 public class ClientFrame extends JFrame implements IClientFrame {
+	private static final long serialVersionUID = 1L;
+	private static final String TEXT_SUBMIT = "text-submit";
+	private static final String INSERT_BREAK = "insert-break";
+
 	private JPanel mainPanel;
 	private JSplitPane horizontalSplitPane;
 	private JSplitPane verticalSplitPane;
@@ -87,12 +95,23 @@ public class ClientFrame extends JFrame implements IClientFrame {
 		sendButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					client.getChatroom().broadCastMessage(client, inputArea.getText());
-					inputArea.setText("");
-				} catch (RemoteException e1) {
-					e1.printStackTrace();
-				}
+				sendMessage();
+			}
+		});
+
+		InputMap input = inputArea.getInputMap();
+		KeyStroke enter = KeyStroke.getKeyStroke("ENTER");
+		KeyStroke shiftEnter = KeyStroke.getKeyStroke("shift ENTER");
+		input.put(shiftEnter, INSERT_BREAK);
+		input.put(enter, TEXT_SUBMIT);
+
+		ActionMap actions = inputArea.getActionMap();
+		actions.put(TEXT_SUBMIT, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendMessage();
 			}
 		});
 
@@ -111,6 +130,15 @@ public class ClientFrame extends JFrame implements IClientFrame {
 		this.setTitle("ChatRoom");
 		this.setContentPane(mainPanel);
 		this.setVisible(true);
+	}
+
+	public void sendMessage() {
+		try {
+			client.getChatroom().broadCastMessage(client, inputArea.getText());
+			inputArea.setText("");
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	public void addMessage(String message) {
