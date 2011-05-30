@@ -7,57 +7,45 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import server.Distante;
+import server.*;
 
+@SuppressWarnings("serial")
 public class Client extends UnicastRemoteObject implements IClient {
-	private static final long serialVersionUID = 1L;
 	private String name;
-	private Distante chatroom;
+	private IChatroom chatroom;
 	private IClientFrame frame;
+	private boolean connected = false;
 
-	protected Client() throws RemoteException {
+	public Client() throws RemoteException {
 		super();
 		this.name = "";
 	}
 
-	protected Client(String name) throws RemoteException {
+	public Client(String name) throws RemoteException {
 		super();
 		this.name = name;
 	}
 
-	public Distante getChatroom() throws RemoteException {
-		return chatroom;
-	}
-
-	public void setChatroom(Distante chatroom) throws RemoteException {
-		this.chatroom = chatroom;
-	}
-
-	public IClientFrame getFrame() {
-		return frame;
-	}
-
-	public void setFrame(IClientFrame frame) {
-		this.frame = frame;
-	}
-
 	public static void main(String[] args) {
 		try {
-			// System.setSecurityManager(new java.rmi.RMISecurityManager());
-			Distante cr1 = (Distante) Naming.lookup("cr1");
-			IClient client = new Client();
-			client.setChatroom(cr1);
 			Console console = System.console();
-
 			if (console == null) {
 				System.err.println("Error : No console ! Please run it with command line :).");
+				System.exit(1);
 			}
 
-			String login = console.readLine("Please enter your login : ");
-			String password = console.readLine("Please enter your password : ");
+			// System.setSecurityManager(new java.rmi.RMISecurityManager());
 
-			client.setFrame(new ClientFrame(client));
-			final IClient c2 = client;
+			ILoginModule lm = (ILoginModule) Naming.lookup("LoginModule");
+			IClient client = new Client();
+
+			String login = console.readLine("Please enter your login \t: ");
+			String password = console.readLine("Please enter room's password \t: ");
+
+			client.setName(login);
+			SPClient spClient = new SPClient(client);
+
+			final SPClient c2 = new SPClient(client);
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					try {
@@ -67,11 +55,29 @@ public class Client extends UnicastRemoteObject implements IClient {
 					}
 				}
 			});
-			if (client.getChatroom().login(login, password, client)) {
 
+			client.setFrame(new ClientFrame(spClient));
+			IChatroom cr = lm.login(spClient, password);
+			if (cr != null) {
+				client.setChatroom(cr);
+				client.getFrame().visible(true);
+				client.setConnected(true);
+			}
+			while (!client.isConnected()) {
+				System.out
+				          .println("Connection failed : incorrect password or login already in use.");
+				login = console.readLine("Please enter your login \t: ");
+				password = console.readLine("Please enter room's password \t: ");
+				client.setName(login);
+				spClient = new SPClient(client);
+				cr = lm.login(spClient, password);
+				if (cr != null) {
+					client.setChatroom(cr);
+					client.getFrame().visible(true);
+					client.setConnected(true);
+				}
 			}
 			return;
-
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -81,33 +87,53 @@ public class Client extends UnicastRemoteObject implements IClient {
 		}
 	}
 
-	public String getName() {
+	public IChatroom getChatroom() throws RemoteException {
+		return chatroom;
+	}
+
+	public void setChatroom(IChatroom chatroom) throws RemoteException {
+		this.chatroom = chatroom;
+	}
+
+	public IClientFrame getFrame() throws RemoteException {
+		return frame;
+	}
+
+	public void setFrame(IClientFrame frame) throws RemoteException {
+		this.frame = frame;
+	}
+
+	public String getName() throws RemoteException {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name) throws RemoteException {
 		this.name = name;
 	}
 
-	public void print(String message) throws RemoteException {
-		frame.addMessage(message);
+	public boolean isConnected() throws RemoteException {
+		return connected;
 	}
 
-	public void notifyConnect(String message) throws RemoteException {
-		print(message + " has joined the channel.");
-		frame.addUser(message);
+	public void setConnected(boolean connected) throws RemoteException {
+		this.connected = connected;
 	}
 
-	public void notifyDisconnect(String message) throws RemoteException {
-		print(message + " has left the channel.");
-		frame.removeUser(message);
+	public void notifyConnect(SPClient client) throws RemoteException {
+		frame.addUser(client);
+		frame.printConnect(client.getName());
+	}
+
+	public void notifyDisconnect(String user) throws RemoteException {
+		frame.removeUser(user);
+		frame.printDisconnect(user);
 	}
 
 	public void notifyMessage(String sender, String message) throws RemoteException {
-		print(sender + " : " + message);
+		frame.printMessage(sender, message);
 	}
 
-	public void notifyLogout() throws RemoteException {
-		print("Good bye !");
+	public void notifyPrivateMessage(SPClient sender, String message) throws RemoteException {
+		frame.print(sender, message);
 	}
 }
